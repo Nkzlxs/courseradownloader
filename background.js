@@ -9,21 +9,6 @@ let oneway = true;
 let dl = null;
 
 chrome.runtime.onInstalled.addListener(function () {
-
-    chrome.storage.sync.set({ color: '#3aa757' }, function () {
-        console.log("Storage saved a green color 3aa757")
-    })
-
-
-    chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
-        chrome.declarativeContent.onPageChanged.addRules([{
-            conditions: [new chrome.declarativeContent.PageStateMatcher({
-                pageUrl: { hostEquals: 'developer.chrome.com' },
-            })
-            ],
-            actions: [new chrome.declarativeContent.ShowPageAction()]
-        }]);
-    });
     console.log("Extension installed");
 });
 
@@ -35,23 +20,55 @@ chrome.commands.onCommand.addListener(function (command) {
         // downloadVideo()
         // jumpNextLink()
         // interval_counts = 0
-        setInterval(function () {
-            downloadVideo()
-            jumpNextLink()
-        }, 10000)
+        // setInterval(function () {
+        //     downloadVideo()
+        //     jumpNextLink()
+        // }, 10000)
 
         // chrome.tabs.onUpdated.addListener(jumpNextLink)
         // chrome.downloads.onCreated.addListener(jumpNextLink)
         // chrome.downloads.onChanged.addListener(updateCheck)
         // chrome.tabs.onUpdated.addListener(updateCheck)
-        chrome.downloads.onCreated.addListener(dlcheck)
+        // jumpNextLink()
+        chrome.webNavigation.onCompleted.addListener(function () {
+            downloadVideo()
+        })
+        chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+            console.log(msg)
+            if (msg.identity == "Downloader") {
+                if (msg.theHyperlink != null) {
+                    chrome.downloads.download(
+                        { "url": msg.theHyperlink, "saveAs": false, "filename": "./Google_IT_Support/" + msg.theWeek + "/video_" + msg.theVideoName + ".webm" }
+                    )
+                } else if (msg.theHyperlink == "NotFound") {
+                    console.log("Hyperlink is NotFound")
+                }
+                jumpNextLink()
+            } else if (msg.identity == "NextLink") {
+                if (msg.theNextLink != null) {
+                    chrome.tabs.update(
+                        { "url": data.theNextlink }
+                    )
+                } else if (msg.theNextLink == "NotFound") {
+                    console.log("Next link is NotFound")
+                }
+            }
+
+        })
     } else if (command == "kill") {
         // chrome.tabs.onUpdated.removeListener(jumpNextLink)
         // chrome.downloads.onCreated.removeListener(jumpNextLink)
         // chrome.downloads.onChanged.removeListener(updateCheck)
         // chrome.tabs.onUpdated.removeListener(updateCheck)
-        chrome.downloads.onCreated.removeListener(dlcheck)
-        chrome.management.setEnabled("icclgolembhgcbdgccmgjeffkmkcmclh", false,)
+        chrome.downloads.search({ "exists": true }, function (DownloadItems) {
+            console.log(DownloadItems)
+            for (var i in DownloadItems) {
+                console.log(DownloadItems[i].id)
+                chrome.downloads.cancel(DownloadItems[i].id);
+            }
+        })
+        // chrome.webNavigation.onCompleted.removeListener(dlcheck)
+        // chrome.management.setEnabled("icclgolembhgcbdgccmgjeffkmkcmclh", false)
     }
 })
 
@@ -60,26 +77,6 @@ function jumpNextLink() {
     chrome.tabs.executeScript(
         {
             "file": "nextHyperlink.js"
-        },
-        function () {
-            chrome.storage.local.get("theNextlink", function (data) {
-                if (data.theNextlink != null) {
-                    console.log(data.theNextlink)
-                    // chrome.tabs.create(
-                    //     { "url": data.theNextlink, "active": true }
-                    // )
-                    chrome.tabs.update(
-                        { "url": data.theNextlink }
-                    )
-                    oneway = true
-                } else {
-                    console.log("Nextlink is null")
-
-                }
-
-            }
-
-            )
         }
     )
 }
@@ -89,56 +86,6 @@ function downloadVideo() {
     chrome.tabs.executeScript(
         {
             "file": "processHyperlink.js"
-        },
-        function () {
-            chrome.storage.local.get(["theHyperlink", "theVideoName", "theWeek"], function (data) {
-                if (data.theHyperlink != null) {
-
-                    console.log(data.theHyperlink)
-
-                    // chrome.tabs.create(
-                    //     { "url": data.theHyperlink, "active": true }
-                    // )
-                    chrome.downloads.download(
-                        { "url": data.theHyperlink, "saveAs": false, "filename": "./Google_IT_Support/" + data.theWeek + "/video_" + data.theVideoName + "_" + counter + ".webm" }
-                    )
-                    counter++
-                    interval_counts = -1;
-                } else {
-                    console.log("Hyperlink is null")
-                    interval_counts++
-                }
-            })
         }
-
     )
-}
-
-
-// let progress = null;
-// function updateCheck(tabId, changeInfo, tab) {
-
-
-//     // console.log("Current is null")
-
-// }
-
-function dlcheck(dlitem) {
-    // console.log(changeInfo.status)
-    console.log(oneway)
-    console.log(dl)
-
-    // progress = changeInfo.status;
-    // jumpNextLink(downloadVideo)
-    if (oneway == true) {
-        oneway = false;
-        dl = setInterval(downloadVideo, 5000)
-        // after 30s
-        if (interval_counts >= 5 || interval_counts == -1) {
-            console.log(interval_counts + " clearing interval!")
-            clearInterval(dl)
-
-            jumpNextLink()
-        }
-    }
 }
