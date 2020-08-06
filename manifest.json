@@ -1,0 +1,51 @@
+{
+    "name": "AutoDownloader",
+    "description": "A extension to download video from coursera",
+    "version": "0.89",
+    "manifest_version": 2,
+    "permissions": [
+        "storage",
+        "contextMenus",
+        "tabs",
+        "declarativeContent",
+        "activeTab",
+        "downloads",
+        "management"
+    ],
+    "browser_action": {
+        "default_popup": "downloader.html",
+        "default_icon": "downloader.png"
+    },
+    "commands": {
+        "_execute_browser_action": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+K"
+            },
+            "description": "Opens downloader.html"
+        },
+        "download_video": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+1"
+            },
+            "description": "Function Download video?"
+        },
+        "next_section": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+2"
+            },
+            "description": "Function Jump to next section"
+        },
+        "kill": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+3"
+            },
+            "description": "Kill loop"
+        }
+    },
+    "background": {
+        "scripts": [
+            "background.js"
+        ],
+        "persistent": false
+    }
+}
