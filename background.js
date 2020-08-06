@@ -30,24 +30,35 @@ chrome.commands.onCommand.addListener(function (command) {
         // chrome.downloads.onChanged.addListener(updateCheck)
         // chrome.tabs.onUpdated.addListener(updateCheck)
         // jumpNextLink()
-        chrome.webNavigation.onCompleted.addListener(function () {
-            downloadVideo()
+        chrome.tabs.onUpdated.addListener(function (tabid, changeinfo, tab) {
+            console.log(tabid + " " + changeinfo.status)
+            if (changeinfo.status == "complete") {
+                // To prevent overfires i thought onUpdate only fire once
+                downloadVideo()
+            }
         })
         chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
             console.log(msg)
+            console.log(sender)
             if (msg.identity == "Downloader") {
                 if (msg.theHyperlink != null) {
                     chrome.downloads.download(
                         { "url": msg.theHyperlink, "saveAs": false, "filename": "./Google_IT_Support/" + msg.theWeek + "/video_" + msg.theVideoName + ".webm" }
                     )
+                    jumpNextLink()
                 } else if (msg.theHyperlink == "NotFound") {
                     console.log("Hyperlink is NotFound")
+                    jumpNextLink()
                 }
-                jumpNextLink()
-            } else if (msg.identity == "NextLink") {
+            }
+            if (msg.identity == "NextLink") {
                 if (msg.theNextLink != null) {
                     chrome.tabs.update(
-                        { "url": data.theNextlink }
+                        sender.tab.id,
+                        { "url": msg.theNextlink },
+                        function () {
+                            console.log("PAGE UPDATED?")
+                        }
                     )
                 } else if (msg.theNextLink == "NotFound") {
                     console.log("Next link is NotFound")
