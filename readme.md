@@ -14,4 +14,4 @@
 3. Ctrl+Shift+3 - Stop the auto-download process
 
 ## Example Result
-![Example Download result](exampleScreenshot%20from%202020-08-07%2020-58-13.png)
+![Example Download result](https://raw.githubusercontent.com/Nkzlxs/courseradownloader/master/example/Screenshot%20from%202020-08-07%2020-58-13.png)
