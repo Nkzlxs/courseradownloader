@@ -31,7 +31,7 @@ chrome.commands.onCommand.addListener(function (command) {
         // chrome.tabs.onUpdated.addListener(updateCheck)
         // jumpNextLink()
         chrome.tabs.onUpdated.addListener(function (tabid, changeinfo, tab) {
-            console.log(tabid + " " + changeinfo.status)
+            // console.log(tabid + " " + changeinfo.status)
             if (changeinfo.status == "complete") {
                 // To prevent overfires i thought onUpdate only fire once
                 downloadVideo()
@@ -41,7 +41,9 @@ chrome.commands.onCommand.addListener(function (command) {
             console.log(msg)
             console.log(sender)
             if (msg.identity == "Downloader") {
+                console.log("MSG IDENTITY IS DOWNLOADER")
                 if (msg.theHyperlink != null) {
+                    console.log("DOWNLOADING VIDEO:" + msg.theHyperlink)
                     chrome.downloads.download(
                         { "url": msg.theHyperlink, "saveAs": false, "filename": "./Google_IT_Support/" + msg.theWeek + "/video_" + msg.theVideoName + ".webm" }
                     )
@@ -52,7 +54,9 @@ chrome.commands.onCommand.addListener(function (command) {
                 }
             }
             if (msg.identity == "NextLink") {
-                if (msg.theNextLink != null) {
+                console.log("MSG IDENTITY IS NEXTLINK")
+                if (msg.theNextLink != "NotFound") {
+                    console.log("UPDATING LINK TO" + msg.theNextLink)
                     chrome.tabs.update(
                         sender.tab.id,
                         { "url": msg.theNextlink },
@@ -63,6 +67,11 @@ chrome.commands.onCommand.addListener(function (command) {
                 } else if (msg.theNextLink == "NotFound") {
                     console.log("Next link is NotFound")
                 }
+            }
+            if (msg.identity == "Supplementary") {
+                console.log("MSG IDENTITY IS SUPPLEMENTARY")
+                console.log(msg.theTitle)
+                jumpNextLink()
             }
 
         })

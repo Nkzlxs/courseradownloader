@@ -40,6 +40,28 @@ function processHyperLink() {
 
             } else if (the_supreading.length != 0) {
                 console.log("Supplementary Reading found")
+                sup_title = document.querySelectorAll('.reading-title')[0].children[0].textContent
+                if (sup_title.length != 0) {
+                    chrome.runtime.sendMessage(
+                        {
+                            "identity": "Supplementary",
+                            "theTitle": sup_title,
+                            "the_links": null //Get done soon
+                        }
+                    )
+                    deleteInterval(findMainContainer)
+
+                }
+            } else if (the_videodiv.length == 0 && the_supreading.length == 0) {
+                console.log("No Video or Supplementary Reading found")
+                chrome.runtime.sendMessage(
+                    {
+                        "identity": "Downloader",
+                        "theHyperlink": "NotFound",
+                        "theVideoName": null,
+                        "theWeek": null
+                    }
+                )
                 deleteInterval(findMainContainer)
             }
         } else {
