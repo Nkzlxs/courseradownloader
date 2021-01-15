@@ -1,11 +1,11 @@
 # Coursera Downloader
 ---
 
-## Auto download video in 720p and auto nexting
-1. Install extension
-2. Navigate to a coursera course page
-3. Ctrl+Shift+2 to begin auto-download, then refresh your coursera page
-4. It will download to your default browser download location with folder named according to your coursera course
+## Automatically download video in 720p and iterate through videos
+1. Install extension as developer
+2. Navigate to a coursera course page with video
+3. First, Ctrl+Shift+2, then, refresh your coursera page
+4. It will start the download to your default browser download location with path and file named according to your coursera course
 5. Ctrl+Shift+3 to stop when it finished downloading
 
 ## Shortcut Keys

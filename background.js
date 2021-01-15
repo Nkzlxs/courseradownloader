@@ -46,6 +46,7 @@ function downloadVideo() {
             "file": "processHyperlink.js"
         }
     )
+    console.log("done?")
 }
 
 function tabfinishupdate(tabid, changeinfo, tab) {
@@ -59,9 +60,11 @@ function onMSG(msg, sender, sendResponse) {
     if (msg.identity == "Downloader") {
         console.log("MSG IDENTITY IS DOWNLOADER")
         if (msg.theHyperlink != null) {
-            console.log("DOWNLOADING VIDEO:" + msg.theHyperlink)
+            console.log("DOWNLOADING VIDEO:", msg.theHyperlink)
+            filename_tosave = "./" + msg.theFolderName + "/" + msg.theWeek + "/" + counter + "_" + "video" + "_" + msg.theVideoName + ".webm"
+            console.log(filename_tosave)
             chrome.downloads.download(
-                { "url": msg.theHyperlink, "saveAs": false, "filename": "./" + msg.theFolderName + "/" + msg.theWeek + "/video_" + msg.theVideoName + "_" + counter + ".webm" }
+                { "url": msg.theHyperlink, "saveAs": false, "filename": filename_tosave }
             )
             counter++
             jumpNextLink()

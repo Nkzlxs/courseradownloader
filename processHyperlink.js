@@ -1,5 +1,6 @@
 processHyperLink()
 function processHyperLink() {
+    console.log("Processing Hyperlink!")
     let findMainContainer = setInterval(function () {
         the_container = document.querySelectorAll('div[data-id="item-scroll-container"]')
         the_video_class = "rc-VideoItemWithHighlighting"
@@ -10,19 +11,21 @@ function processHyperLink() {
             console.log("Container Found")
             if (the_target_div.className == the_video_class) {
                 console.log("Video div found")
-                the_hyperlink = document.querySelectorAll("video")
-                the_videoName = document.querySelectorAll(".video-name")
-                the_week = document.querySelectorAll('.rc-Breadcrumbs')
-                if (the_hyperlink.length != 0) {
-                    console.log(the_hyperlink[0].src);
-                    console.log(the_videoName[0].textContent)
+                let data = {
+                    "the_hyperlink": document.querySelectorAll("video")[0].src,
+                    "the_videoName": document.querySelectorAll(".video-name")[0].textContent.replace(/\/|\s|\?|\:/g, ''),
+                    "the_foldername": document.querySelectorAll('.rc-Breadcrumbs')[0].children[0].children[0].children[0].text.replace(/\/|\s|\?|\:/g, ''),
+                    "the_week": document.querySelectorAll('.rc-Breadcrumbs')[0].children[0].children[2].children[0].text.replace(/\/|\s|\?|\:/g, '')
+                }
+
+                if (data.the_hyperlink.length != 0) {
                     chrome.runtime.sendMessage(
                         {
                             "identity": "Downloader",
-                            "theHyperlink": the_hyperlink[0].src,
-                            "theFolderName": the_week[0].children[0].children[0].children[0].text.replace(/\/|\s|\?/g, ''),
-                            "theVideoName": the_videoName[0].textContent.replace(/\/|\s|\?/g, ''),
-                            "theWeek": the_week[0].children[0].children[2].children[0].text.replace(/\/|\s|\?/g, '')
+                            "theHyperlink": data.the_hyperlink,
+                            "theFolderName": data.the_foldername,
+                            "theVideoName": data.the_videoName,
+                            "theWeek": data.the_week
                         }
                     )
                     deleteInterval(findMainContainer)
@@ -43,7 +46,14 @@ function processHyperLink() {
 
             } else if (the_target_div.className == the_supreading_class) {
                 console.log("Supplementary Reading found")
-                sup_title = document.querySelectorAll('.reading-title')[0].children[0].textContent
+                sup_title = ""
+                try {
+                    sup_title_container = document.querySelectorAll('.reading-title')
+                    sup_title = sup_title_container[0].children[0].textContent
+                } catch (e) {
+                    console.log(e)
+                }
+
                 all_links = document.querySelectorAll("a")
                 the_links = []
                 for (var num = 28; num < all_links.length; num++) {
@@ -58,7 +68,16 @@ function processHyperLink() {
                         }
                     )
                     deleteInterval(findMainContainer)
-
+                } else {
+                    chrome.runtime.sendMessage(
+                        {
+                            "identity": "Downloader",
+                            "theHyperlink": "NotFound",
+                            "theFolderName": null,
+                            "theVideoName": null,
+                            "theWeek": null
+                        }
+                    )
                 }
             } else {
                 console.log("No Video or Supplementary Reading found")

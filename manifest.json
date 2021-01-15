@@ -1,7 +1,7 @@
 {
     "name": "AutoDownloader",
     "description": "A extension to download video from coursera",
-    "version": "0.99.05",
+    "version": "0.99.07",
     "manifest_version": 2,
     "permissions": [
         "activeTab",
